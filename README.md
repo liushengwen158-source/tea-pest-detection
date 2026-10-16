@@ -27,6 +27,28 @@
 
 ![PR 曲线](assets/pr_curve.png)
 
+## 模型权重与数据集下载（GitHub Release）
+
+为保持仓库轻量，权重和 9000 多张图片的数据集未放进 Git，统一发布在 **[Release v1.0](https://github.com/liushengwen158-source/tea-pest-detection/releases/tag/v1.0)**：
+
+| 文件 | 大小 | 说明 | 下载后放置位置 |
+| --- | --- | --- | --- |
+| `tea_yolov8n_best.pt` | 6 MB | 训练好的最优权重（mAP50 0.975） | 重命名为 `best.pt`，放到 `runs/detect/tea_yolov8n/weights/best.pt`（predict.py 的默认路径） |
+| `tea_dataset.zip` | 约 653 MB | YOLO 格式数据集，train 7260 / valid 784 / test 1547，共 9,591 张 | 解压到**项目根目录**，自动生成 `data/tea/` |
+
+PowerShell 示例：
+
+```powershell
+# 数据集：解压到项目根目录
+Expand-Archive tea_dataset.zip -DestinationPath .
+
+# 权重：放到默认推理路径
+New-Item -ItemType Directory -Force -Path runs/detect/tea_yolov8n/weights | Out-Null
+Move-Item tea_yolov8n_best.pt runs/detect/tea_yolov8n/weights/best.pt
+```
+
+> 想从源头复现数据集：从 HuggingFace 下载 `Project-AgML/tea_leaf_disease_pest_detection` 的 parquet，放到项目根目录命名为 `_raw.parquet`，再运行 `python scripts/prepare_data.py`，效果与下载 zip 相同。
+
 ## 目录结构
 
 ```
@@ -63,28 +85,6 @@ pip install ultralytics
 ```
 
 首次训练会自动使用 CUDA；无 GPU 时把 `scripts/train.py` 中的 `"device": 0` 改为 `"device": "cpu"`。
-
-## 模型权重与数据集下载（GitHub Release）
-
-为保持仓库轻量，权重和 9000 多张图片的数据集未放进 Git，统一发布在 **[Release v1.0](https://github.com/liushengwen158-source/tea-pest-detection/releases/tag/v1.0)**：
-
-| 文件 | 大小 | 说明 | 下载后放置位置 |
-| --- | --- | --- | --- |
-| `tea_yolov8n_best.pt` | 6 MB | 训练好的最优权重（mAP50 0.975） | 重命名为 `best.pt`，放到 `runs/detect/tea_yolov8n/weights/best.pt`（predict.py 的默认路径） |
-| `tea_dataset.zip` | 约 653 MB | YOLO 格式数据集，train 7260 / valid 784 / test 1547，共 9,591 张 | 解压到**项目根目录**，自动生成 `data/tea/` |
-
-PowerShell 示例：
-
-```powershell
-# 数据集：解压到项目根目录
-Expand-Archive tea_dataset.zip -DestinationPath .
-
-# 权重：放到默认推理路径
-New-Item -ItemType Directory -Force -Path runs/detect/tea_yolov8n/weights | Out-Null
-Move-Item tea_yolov8n_best.pt runs/detect/tea_yolov8n/weights/best.pt
-```
-
-> 想从源头复现数据集：从 HuggingFace 下载 `Project-AgML/tea_leaf_disease_pest_detection` 的 parquet，放到项目根目录命名为 `_raw.parquet`，再运行 `python scripts/prepare_data.py`，效果与下载 zip 相同。
 
 ## 使用方法
 
@@ -132,7 +132,23 @@ python scripts/train.py
 | AMP | 开启 | 自动混合精度，省显存、提速 |
 | 数据增强 | Ultralytics 默认 | mosaic、HSV 色彩抖动、水平翻转、随机擦除等 |
 
-本次训练第 88 轮早停，耗时约 1.4 小时（RTX 4050 Laptop）。训练过程的损失下降与 mAP 上升曲线（完整数据见 `runs/detect/tea_yolov8n/results.csv`）：
+本次训练第 88 轮早停，耗时约 1.4 小时（RTX 4050 Laptop）。
+
+**训练产出全部保存在 `runs/detect/tea_yolov8n/`**：
+
+| 文件 | 内容 |
+| --- | --- |
+| weights/best.pt、weights/last.pt | 最优权重 / 最后一轮权重（续训用） |
+| results.csv、results.png | 每轮训练损失与验证 mAP 的数据表和曲线 |
+| BoxPR/BoxP/BoxR/BoxF1_curve.png | 验证集精确率、召回率、PR、F1 曲线 |
+| confusion_matrix*.png | 各类别混淆矩阵 |
+| train_batch*.jpg | 训练集样本（增强后）与标注框可视化 |
+| val_batch*_labels/pred.jpg | 验证集真实标注 vs 模型预测对比 |
+| labels.jpg、args.yaml | 标注分布统计、本次训练完整参数 |
+
+> 说明：YOLO 的 mAP/P/R 只在**验证集**上评估；results.csv 里训练集对应的是损失值（box/cls/dfl loss），不在训练集上算准确率，避免指标虚高。
+
+训练过程的损失下降与 mAP 上升曲线（完整数据见 `runs/detect/tea_yolov8n/results.csv`）：
 
 ![训练曲线](assets/results.png)
 
