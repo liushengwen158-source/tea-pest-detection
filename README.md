@@ -41,16 +41,6 @@ Move-Item tea_yolov8n_best.pt runs/detect/tea_yolov8n/weights/best.pt
 
 > 想从源头复现数据集：从 HuggingFace 下载 `Project-AgML/tea_leaf_disease_pest_detection` 的 parquet，放到项目根目录命名为 `_raw.parquet`，再运行 `python scripts/prepare_data.py`，效果与下载 zip 相同。
 
-## 检测效果展示
-
-验证集检测效果示例（不同颜色框 = 不同类别，框上为类别名与置信度）：
-
-![验证集检测效果示例](assets/detection_examples.jpg)
-
-各类别的精确率-召回率曲线：
-
-![PR 曲线](assets/pr_curve.png)
-
 ## 目录结构
 
 ```
@@ -70,7 +60,7 @@ tea-pest-detection/
 │   ├── yolo11n.pt               # 备用预训练权重
 │   └── yolo26n.pt               # 离线 AMP 自检占位文件（勿删，见“常见问题”）
 ├── test_images/                 # 自己的待检测图片放这里
-├── assets/                      # README 展示用图（检测示例、PR 曲线、训练曲线）
+├── assets/                      # README 用图（检测示例 + training/ 完整训练图表存档）
 ├── runs/detect/
 │   ├── tea_yolov8n/             # 训练产出（best.pt、results.csv、曲线图）
 │   └── predict/                 # 推理结果图（每次运行自动清空并重新编号）
@@ -136,25 +126,21 @@ python scripts/train.py
 
 本次训练第 88 轮早停，耗时约 1.4 小时（RTX 4050 Laptop）。
 
-**训练产出全部保存在 `runs/detect/tea_yolov8n/`**：
+**训练产出保存在 `runs/detect/tea_yolov8n/`**（权重）；全部图表与数据已同步存档在仓库的 [assets/training/](assets/training) 目录，文末“附录：训练与评估图表”集中展示：
 
 | 文件 | 内容 |
 | --- | --- |
-| weights/best.pt、weights/last.pt | 最优权重 / 最后一轮权重（续训用） |
+| weights/best.pt | 最优权重（验证 mAP 最高的一轮，推理用它；已发布在 Release） |
 | results.csv、results.png | 每轮训练损失与验证 mAP 的数据表和曲线 |
 | BoxPR/BoxP/BoxR/BoxF1_curve.png | 验证集精确率、召回率、PR、F1 曲线 |
 | confusion_matrix*.png | 各类别混淆矩阵 |
-| train_batch*.jpg | 训练集样本（增强后）与标注框可视化 |
+| train_batch*.jpg、train_gt_samples.jpg | 训练样本（增强 / 原图）与标注框可视化 |
 | val_batch*_labels/pred.jpg | 验证集真实标注 vs 模型预测对比 |
 | labels.jpg、args.yaml | 标注分布统计、本次训练完整参数 |
 
 > 说明：YOLO 的 mAP/P/R 只在**验证集**上评估；results.csv 里训练集对应的是损失值（box/cls/dfl loss），不在训练集上算准确率，避免指标虚高。
 
-训练过程的损失下降与 mAP 上升曲线（完整数据见 `runs/detect/tea_yolov8n/results.csv`）：
-
-![训练曲线](assets/results.png)
-
-断点续训（进程中断后从最近一轮继续，不丢进度）：
+断点续训：训练过程中会自动生成 `weights/last.pt`，进程中断后用它从最近一轮继续（不丢进度）；训练结束后该中间文件可删除：
 
 ```powershell
 python -c "from ultralytics import YOLO; YOLO(r'runs/detect/tea_yolov8n/weights/last.pt').train(resume=True)"
@@ -194,6 +180,74 @@ YOLOv8n 体积小（best.pt 约 6 MB），树莓派纯 CPU 可达数 FPS，配�
 >
 > ⚠️ 类别 1、7 训练样本各只有 4 个，模型实际无法识别这两类（整体 mAP 只统计其余 6 类）。如需识别褐色枯萎症状，需补充该类照片并重新训练。
 > 另外模型对“单片叶近景”效果最好；茂密树冠远景、与训练场景差异大的照片泛化会下降。
+
+## 附录：训练与评估图表
+
+以下图表为本次训练的完整存档，原始文件均在 [assets/training/](assets/training)（含 `results.csv` 逐轮数据、`args.yaml` 完整参数）。
+
+### 1. 验证集：真实标注 vs 模型预测
+
+左为人工标注（labels），右为模型预测（pred）：
+
+![验证集批次0 真实标注](assets/training/val_batch0_labels.jpg)
+
+![验证集批次0 模型预测](assets/training/val_batch0_pred.jpg)
+
+![验证集批次1 真实标注](assets/training/val_batch1_labels.jpg)
+
+![验证集批次1 模型预测](assets/training/val_batch1_pred.jpg)
+
+![验证集批次2 真实标注](assets/training/val_batch2_labels.jpg)
+
+![验证集批次2 模型预测](assets/training/val_batch2_pred.jpg)
+
+### 2. 评估曲线
+
+精确率-召回率曲线（图例数字为各类别 AP50，粗蓝线为全部类别平均 0.975）：
+
+![PR 曲线](assets/training/BoxPR_curve.png)
+
+精确率-置信度、召回率-置信度、F1-置信度曲线：
+
+![P 曲线](assets/training/BoxP_curve.png)
+
+![R 曲线](assets/training/BoxR_curve.png)
+
+![F1 曲线](assets/training/BoxF1_curve.png)
+
+训练全过程损失下降与 mAP 上升曲线：
+
+![训练曲线](assets/training/results.png)
+
+### 3. 混淆矩阵
+
+归一化混淆矩阵（对角线越亮越好，可看出 6 个有效类别几乎不互混）：
+
+![归一化混淆矩阵](assets/training/confusion_matrix_normalized.png)
+
+原始计数混淆矩阵：
+
+![混淆矩阵](assets/training/confusion_matrix.png)
+
+### 4. 训练集标注可视化
+
+未经增强的训练集原图与人工标注框（框角数字为类别编号）：
+
+![训练集原图标注](assets/training/train_gt_samples.jpg)
+
+训练时实际输入网络的增强批次（mosaic 拼接、色彩抖动等，框为标注）：
+
+![训练批次0](assets/training/train_batch0.jpg)
+
+![训练批次1](assets/training/train_batch1.jpg)
+
+![训练批次2](assets/training/train_batch2.jpg)
+
+全数据集标注框的中心点位置与尺寸分布：
+
+![标注分布](assets/training/labels.jpg)
+
+> 续训恢复阶段记录的增强批次见 [train_batch40860.jpg](assets/training/train_batch40860.jpg)、[train_batch40861.jpg](assets/training/train_batch40861.jpg)、[train_batch40862.jpg](assets/training/train_batch40862.jpg)。
 
 ## 常见问题
 
