@@ -1,0 +1,30 @@
+﻿# 数据集（约 674MB，来源与重建方式见 README）
+data/
+
+# 训练与推理产出（权重、曲线、结果图，可重新生成）
+runs/
+
+# 预训练权重与临时模型文件（可重新下载/生成）
+weights/*.pt
+
+# 个人待检测图片（保留文件夹，忽略内容）
+test_images/*
+!test_images/.gitkeep
+
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+venv/
+
+# 数据集缓存与临时文件
+*.cache
+*.part
+_raw.parquet
+
+# 系统/编辑器
+Thumbs.db
+.DS_Store
+.vscode/
+.idea/

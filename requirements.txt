@@ -1,0 +1,7 @@
+﻿# GPU 版 torch 建议按 https://pytorch.org/get-started/locally/ 官网命令单独安装，
+# 否则 ultralytics 会自动装 CPU 版，训练/推理明显变慢。CUDA 12.8 示例：
+#   pip install torch torchvision --index-url https://download.pytorch.org/whl/cu128
+ultralytics>=8.3.0
+pandas>=2.0
+pyarrow>=14.0
+pillow>=10.0
