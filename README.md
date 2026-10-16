@@ -64,7 +64,27 @@ pip install ultralytics
 
 首次训练会自动使用 CUDA；无 GPU 时把 `scripts/train.py` 中的 `"device": 0` 改为 `"device": "cpu"`。
 
-> 注：数据集体积较大（约 674 MB），未纳入 Git 仓库。复现训练请从 HuggingFace 下载 `Project-AgML/tea_leaf_disease_pest_detection` 的 parquet 文件，放到项目根目录命名为 `_raw.parquet`，再运行 `python scripts/prepare_data.py` 生成 `data/tea/`（train 7260 / valid 784 / test 1547）。
+## 模型权重与数据集下载（GitHub Release）
+
+为保持仓库轻量，权重和 9000 多张图片的数据集未放进 Git，统一发布在 **[Release v1.0](https://github.com/liushengwen158-source/tea-pest-detection/releases/tag/v1.0)**：
+
+| 文件 | 大小 | 说明 | 下载后放置位置 |
+| --- | --- | --- | --- |
+| `tea_yolov8n_best.pt` | 6 MB | 训练好的最优权重（mAP50 0.975） | 重命名为 `best.pt`，放到 `runs/detect/tea_yolov8n/weights/best.pt`（predict.py 的默认路径） |
+| `tea_dataset.zip` | 约 653 MB | YOLO 格式数据集，train 7260 / valid 784 / test 1547，共 9,591 张 | 解压到**项目根目录**，自动生成 `data/tea/` |
+
+PowerShell 示例：
+
+```powershell
+# 数据集：解压到项目根目录
+Expand-Archive tea_dataset.zip -DestinationPath .
+
+# 权重：放到默认推理路径
+New-Item -ItemType Directory -Force -Path runs/detect/tea_yolov8n/weights | Out-Null
+Move-Item tea_yolov8n_best.pt runs/detect/tea_yolov8n/weights/best.pt
+```
+
+> 想从源头复现数据集：从 HuggingFace 下载 `Project-AgML/tea_leaf_disease_pest_detection` 的 parquet，放到项目根目录命名为 `_raw.parquet`，再运行 `python scripts/prepare_data.py`，效果与下载 zip 相同。
 
 ## 使用方法
 
