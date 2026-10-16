@@ -17,7 +17,7 @@
 > **验证集：784 张图、1,042 个标注目标**；mAP 为各类别平均，实际只统计了**有足够样本的 6 个类别**（原因见文末“类别说明”）。
 
 - **数据集：9,591 张图，8 个类别** —— figshare《Tea-Leaf Disease and Pest Detection Dataset v1.0》的 HuggingFace 镜像（`Project-AgML/tea_leaf_disease_pest_detection`），**CC BY 4.0** 开源协议
-- 🧠 **模型：YOLOv8n** —— 约 **313 万参数**、**8.6 GFLOPs**、权重仅 **6 MB**，专为边缘部署优化的轻量检测模型
+- **模型：YOLOv8n** —— 约 **313 万参数**、**8.6 GFLOPs**、权重仅 **6 MB**，专为边缘部署优化的轻量检测模型
 
 ## 模型权重与数据集下载（GitHub Release）
 
