@@ -189,17 +189,14 @@ YOLOv8n 体积小（best.pt 约 6 MB），树莓派纯 CPU 可达数 FPS，配�
 
 左为人工标注（labels），右为模型预测（pred）：
 
-![验证集批次0 真实标注](assets/training/val_batch0_labels.jpg)
+![验证集批次0 真实标注](assets/training/val_batch0_labels.jpg) ![验证集批次0 模型预测](assets/training/val_batch0_pred.jpg)
 
-![验证集批次0 模型预测](assets/training/val_batch0_pred.jpg)
 
-![验证集批次1 真实标注](assets/training/val_batch1_labels.jpg)
+![验证集批次1 真实标注](assets/training/val_batch1_labels.jpg) ![验证集批次1 模型预测](assets/training/val_batch1_pred.jpg)
 
-![验证集批次1 模型预测](assets/training/val_batch1_pred.jpg)
 
-![验证集批次2 真实标注](assets/training/val_batch2_labels.jpg)
+![验证集批次2 真实标注](assets/training/val_batch2_labels.jpg) ![验证集批次2 模型预测](assets/training/val_batch2_pred.jpg)
 
-![验证集批次2 模型预测](assets/training/val_batch2_pred.jpg)
 
 ### 2. 评估曲线
 
