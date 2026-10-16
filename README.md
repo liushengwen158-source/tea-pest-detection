@@ -17,15 +17,7 @@
 > **验证集：784 张图、1,042 个标注目标**；mAP 为各类别平均，实际只统计了**有足够样本的 6 个类别**（原因见文末“类别说明”）。
 
 - **数据集：9,591 张图，8 个类别** —— figshare《Tea-Leaf Disease and Pest Detection Dataset v1.0》的 HuggingFace 镜像（`Project-AgML/tea_leaf_disease_pest_detection`），**CC BY 4.0** 开源协议
-- **模型：YOLOv8n** —— 约 **313 万参数**、**8.6 GFLOPs**、权重仅 **6 MB**，专为边缘部署优化的轻量检测模型
-
-验证集检测效果示例（不同颜色框 = 不同类别，框上为类别名与置信度）：
-
-![验证集检测效果示例](assets/detection_examples.jpg)
-
-各类别的精确率-召回率曲线：
-
-![PR 曲线](assets/pr_curve.png)
+- 🧠 **模型：YOLOv8n** —— 约 **313 万参数**、**8.6 GFLOPs**、权重仅 **6 MB**，专为边缘部署优化的轻量检测模型
 
 ## 模型权重与数据集下载（GitHub Release）
 
@@ -48,6 +40,16 @@ Move-Item tea_yolov8n_best.pt runs/detect/tea_yolov8n/weights/best.pt
 ```
 
 > 想从源头复现数据集：从 HuggingFace 下载 `Project-AgML/tea_leaf_disease_pest_detection` 的 parquet，放到项目根目录命名为 `_raw.parquet`，再运行 `python scripts/prepare_data.py`，效果与下载 zip 相同。
+
+## 检测效果展示
+
+验证集检测效果示例（不同颜色框 = 不同类别，框上为类别名与置信度）：
+
+![验证集检测效果示例](assets/detection_examples.jpg)
+
+各类别的精确率-召回率曲线：
+
+![PR 曲线](assets/pr_curve.png)
 
 ## 目录结构
 
